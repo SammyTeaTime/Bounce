@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <TeaTimeEngine/Application.h>
 
 #include "GameEntities/Paddle.h"
 
@@ -38,15 +39,17 @@ void Paddle::Move(sf::Vector2f offset)
 
 sf::FloatRect Paddle::GetBounds() const
 {
-  float paddleWidth = (float)_numSections * _sectionWidth;
+  sf::Vector2f position = GetPosition();
+  sf::Vector2f paddleSize = CalculatePaddleSize();
+  
   return sf::FloatRect(
-    { _transform.getPosition().x - paddleWidth * 0.5f,
-    _transform.getPosition().y - (float)_sectionHeight * 0.5f },
-    { paddleWidth, (float)_sectionHeight });
+    { position.x - paddleSize.x * 0.5f, position.y - paddleSize.y * 0.5f },
+    { paddleSize.x, paddleSize.y });
 }
 
 void Paddle::Setup()
 {
+  _windowSize = Application::GetInstance()->GetRenderWindow().getSize();
 }
 
 void Paddle::Start()
@@ -63,6 +66,8 @@ void Paddle::Update(const float dt)
   {
     Move({ _movementSpeed * dt, 0.0f });
   }
+
+  CollideWithWalls();
 }
 
 void Paddle::Render(sf::RenderWindow& window)
@@ -82,11 +87,38 @@ void Paddle::Destroy()
 void Paddle::LayoutSections()
 {
   float paddleWidth = (float)_numSections * _sectionWidth;
+  sf::Vector2f position = GetPosition();
 
   for (int i = 0; i < _numSections; ++i)
   {
-    _paddleSections[i].setPosition({ _transform.getPosition().x +
+    _paddleSections[i].setPosition({ position.x +
       _sectionWidth * 0.5f + paddleWidth * -0.5f + i * _sectionWidth,
-      _transform.getPosition().y });
+      position.y });
   }
+}
+
+void Paddle::CollideWithWalls()
+{
+  sf::Vector2f paddleSize = CalculatePaddleSize();
+  sf::Vector2f position = GetPosition();
+  float minX = position.x - paddleSize.x * 0.5f;
+  float maxX = position.x + paddleSize.x * 0.5f;
+
+  if (minX < 0)
+  {
+    SetPosition(sf::Vector2f(
+      paddleSize.x * 0.5f,
+      position.y));
+  }
+  else if (maxX > _windowSize.x)
+  {
+    SetPosition(sf::Vector2f(
+      _windowSize.x - paddleSize.x * 0.5f,
+      position.y));
+  }
+}
+
+sf::Vector2f Paddle::CalculatePaddleSize() const
+{
+  return sf::Vector2f((float)_numSections * _sectionWidth, (float)_sectionHeight);
 }

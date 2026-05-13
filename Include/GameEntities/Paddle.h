@@ -14,6 +14,8 @@ private:
   int _sectionHeight;
   float _movementSpeed;
 
+  sf::Vector2u _windowSize;
+
 public:
   Paddle(int numSections, int sectionWidth, int sectionHeight,
     float movementSpeed);
@@ -34,4 +36,6 @@ public:
 
 private:
   void LayoutSections();
+  void CollideWithWalls();
+  sf::Vector2f CalculatePaddleSize() const;
 };
