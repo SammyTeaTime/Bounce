@@ -1,0 +1,23 @@
+{
+  "class": "BurstParticleEffect",
+  "data": {
+    "lifetime": 10.0,
+    "numParticlesPerBurst": 40,
+    "particleSize": {
+      "x": 4.0,
+      "y": 4.0
+    },
+    "particleColour": {
+      "r": 255,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "speedMin": 100.0,
+    "speedMax": 150.0,
+    "gravity": {
+      "x": 0.0,
+      "y": 98.0
+    }
+  }
+}

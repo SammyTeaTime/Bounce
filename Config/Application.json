@@ -1,0 +1,8 @@
+{
+  "startupScene": "Assets/Scenes/Sandbox.json",
+  "window": {
+    "title": "Bounce",
+    "width": 800,
+    "height": 600
+  }
+}
