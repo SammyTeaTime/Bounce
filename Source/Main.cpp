@@ -21,6 +21,8 @@ int main()
     std::make_shared<BrickFactory>());
   sceneLoaderService->RegisterGameEntityFactory("Paddle",
     std::make_shared<PaddleFactory>());
+  sceneLoaderService->RegisterGameEntityFactory("ScoreBoard",
+    std::make_shared<ScoreBoardFactory>());
 
   auto particleEffectService = ServiceLocator::GetInstance()->
     GetService<IParticleEffectService>();

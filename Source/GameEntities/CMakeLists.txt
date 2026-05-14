@@ -5,4 +5,6 @@ target_sources(Bounce PRIVATE
   "Brick.cpp"
   "BurstParticleEffect.cpp"
   "GameEntityFactories.cpp" 
-  "ParticleEffectFactories.cpp")
+  "ParticleEffectFactories.cpp" 
+  "ScoreBoard.cpp"
+)

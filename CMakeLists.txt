@@ -14,7 +14,7 @@ include(FetchContent)
 FetchContent_Declare(
   TeaTimeEngine
   GIT_REPOSITORY https://github.com/SammyTeaTime/TeaTimeEngine
-  GIT_TAG        1.0.0
+  GIT_TAG        b03d194a2dbbe60995ce1ac1cdb0470939b3fd43
   GIT_SHALLOW    true
 )
 FetchContent_MakeAvailable(TeaTimeEngine)

@@ -19,3 +19,9 @@ class PaddleFactory : public IGameEntityFactory
 public:
   IGameEntityPtr Create(const Json& data) override;
 };
+
+class ScoreBoardFactory : public IGameEntityFactory
+{
+public:
+  IGameEntityPtr Create(const Json& data) override;
+};

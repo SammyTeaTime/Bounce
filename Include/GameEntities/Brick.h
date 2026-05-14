@@ -1,6 +1,10 @@
 #pragma once
 
+#include <memory>
+
 #include <TeaTimeEngine/Entities/IGameEntity.h>
+
+class IEventService;
 
 class Brick : public IGameEntity
 {
@@ -8,10 +12,14 @@ private:
   float _width;
   float _height;
   sf::Color _colour;
+  int _scoreValue;
   sf::RectangleShape _shape;
 
+  std::shared_ptr<IEventService> _eventService;
+
 public:
-  Brick(float width, float height, sf::Color colour);
+  Brick(float width, float height, sf::Color colour, int scoreValue,
+    std::shared_ptr<IEventService>);
   ~Brick() = default;
 
   void Setup() override;
