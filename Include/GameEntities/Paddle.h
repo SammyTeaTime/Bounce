@@ -5,6 +5,8 @@
 
 class Paddle : public IGameEntity
 {
+  IGAMEENTITY_DECLARATION();
+
 private:
   sf::Transformable _transform;
   sf::RectangleShape* _paddleSections;

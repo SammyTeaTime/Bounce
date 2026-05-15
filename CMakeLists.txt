@@ -14,8 +14,10 @@ include(FetchContent)
 FetchContent_Declare(
   TeaTimeEngine
   GIT_REPOSITORY https://github.com/SammyTeaTime/TeaTimeEngine
-  GIT_TAG        b03d194a2dbbe60995ce1ac1cdb0470939b3fd43
+  GIT_TAG        9c54fddec9cd9bb0b2140f6907d16a04ae1625ca
   GIT_SHALLOW    true
+  # Used for testing locally
+  # SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../TeaTimeEngine"
 )
 FetchContent_MakeAvailable(TeaTimeEngine)
 

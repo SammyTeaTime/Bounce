@@ -8,6 +8,8 @@
 
 class Ball : public IGameEntity
 {
+  IGAMEENTITY_DECLARATION();
+
 private:
   float _radius;
   sf::CircleShape _shape;

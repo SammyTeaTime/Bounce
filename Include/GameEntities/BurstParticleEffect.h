@@ -7,6 +7,8 @@
 
 class BurstParticleEffect : public IParticleEffect
 {
+  IGAMEENTITY_DECLARATION();
+
 private:
   std::array<sf::RectangleShape, 128> _particles;
   std::array<sf::Vector2f, 128> _particleVelocities;

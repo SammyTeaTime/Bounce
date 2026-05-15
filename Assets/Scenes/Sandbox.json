@@ -37,6 +37,17 @@
     }
   },
   {
+    "class": "FPSDisplayEntity",
+    "data": {
+      "isEnabled":  false,
+      "position": {
+        "x": 650.0,
+        "y": 20.0
+      },
+      "font": "BerlinSans"
+    }
+  },
+  {
     "class": "Brick",
     "data": {
       "position": {

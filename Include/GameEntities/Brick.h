@@ -8,6 +8,8 @@ class IEventService;
 
 class Brick : public IGameEntity
 {
+  IGAMEENTITY_DECLARATION();
+
 private:
   float _width;
   float _height;

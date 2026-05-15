@@ -9,6 +9,8 @@ class IEventService;
 
 class ScoreBoard : public TextEntity, EventListener
 {
+  IGAMEENTITY_DECLARATION();
+
 private:
   int _score = 0;
   int _displayedScore = 0;

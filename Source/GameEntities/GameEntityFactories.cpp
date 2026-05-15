@@ -18,9 +18,7 @@ IGameEntityPtr BallFactory::Create(const Json& data)
 
   std::shared_ptr<Ball> ball = std::make_shared<Ball>(radius,
     initialVelocity);
-
-  IGameEntityFactory::ParseAndSetCommonParams(ball, data);
-
+  IGAMEENTITYFACTORY_SET_COMMON_PARAMS(ball, data);
   return ball;
 }
 
@@ -40,9 +38,7 @@ IGameEntityPtr BrickFactory::Create(const Json& data)
 
   std::shared_ptr<Brick> brick = std::make_shared<Brick>(width, height,
     colour, scoreValue, eventService);
-
-  IGameEntityFactory::ParseAndSetCommonParams(brick, data);
-
+  IGAMEENTITYFACTORY_SET_COMMON_PARAMS(brick, data);
   return brick;
 }
 
@@ -55,9 +51,7 @@ IGameEntityPtr PaddleFactory::Create(const Json& data)
 
   std::shared_ptr<Paddle> paddle = std::make_shared<Paddle>(numSections,
     sectionWidth, sectionHeight, movementSpeed);
-
-  IGameEntityFactory::ParseAndSetCommonParams(paddle, data);
-
+  IGAMEENTITYFACTORY_SET_COMMON_PARAMS(paddle, data);
   return paddle;
 }
 
@@ -92,6 +86,6 @@ IGameEntityPtr ScoreBoardFactory::Create(const Json& data)
     GetService<IEventService>();
 
   auto scoreBoard = std::make_shared<ScoreBoard>(font, text, eventService);
-  IGameEntityFactory::ParseAndSetCommonParams(scoreBoard, data);
+  IGAMEENTITYFACTORY_SET_COMMON_PARAMS(scoreBoard, data);
   return scoreBoard;
 }
