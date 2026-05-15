@@ -7,8 +7,9 @@
 
 #include "GameEntities/Ball.h"
 #include "GameEntities/Brick.h"
+#include "GameEntities/NumberDisplay.h"
 #include "GameEntities/Paddle.h"
-#include "GameEntities/Scoreboard.h"
+#include "GameEntities/TimeTracker.h"
 
 IGameEntityPtr BallFactory::Create(const Json& data)
 {
@@ -16,7 +17,8 @@ IGameEntityPtr BallFactory::Create(const Json& data)
   sf::Vector2f initialVelocity = { data["initialVelocity"]["x"],
     data["initialVelocity"]["y"] };
 
-  std::shared_ptr<Ball> ball = std::make_shared<Ball>(radius,
+  std::shared_ptr<Ball> ball = std::make_shared<Ball>(
+    radius,
     initialVelocity);
   IGAMEENTITYFACTORY_SET_COMMON_PARAMS(ball, data);
   return ball;
@@ -42,6 +44,64 @@ IGameEntityPtr BrickFactory::Create(const Json& data)
   return brick;
 }
 
+IGameEntityPtr NumberDisplayFactory::Create(const Json& data)
+{
+  const std::string font = "font";
+  const std::string label = "label";
+  const std::string numberFormat = "numberFormat";
+  const std::string numberChangedEventName = "numberChangedEventName";
+
+  if (!data.contains(font) || !data[font].is_string())
+  {
+    PLOG_ERROR << "NumberDisplayFactory: Missing or invalid 'font' parameter";
+    throw std::runtime_error("NumberDisplayFactory: Missing or invalid 'font' "
+      "parameter");
+  }
+
+  std::string fontName = data[font];
+
+  auto fontService = ServiceLocator::GetInstance()->GetService<IFontService>();
+  if (!fontService)
+  {
+    PLOG_ERROR << "NumberDisplayFactory: FontService not available";
+    throw std::runtime_error("NumberDisplayFactory: FontService not available to "
+      "retrieve fonts");
+  }
+
+  const sf::Font& fontObject = fontService->GetFont(fontName);
+
+  std::string labelString = "";
+  if (data.contains(label) && data[label].is_string())
+  {
+    labelString = data[label];
+  }
+
+  std::string numberFormatString = "";
+  if (data.contains(numberFormat) && data[numberFormat].is_string())
+  {
+    numberFormatString = data[numberFormat];
+  }
+
+  std::string numberChangeEventNameString = "";
+  if (data.contains(numberChangedEventName) && 
+    data[numberChangedEventName].is_string())
+  {
+    numberChangeEventNameString = data[numberChangedEventName];
+  }
+
+  auto eventService = ServiceLocator::GetInstance()->
+    GetService<IEventService>();
+
+  auto numberDisplay = std::make_shared<NumberDisplay>(
+    fontObject,
+    labelString,
+    numberFormatString,
+    numberChangeEventNameString,
+    eventService);
+  IGAMEENTITYFACTORY_SET_COMMON_PARAMS(numberDisplay, data);
+  return numberDisplay;
+}
+
 IGameEntityPtr PaddleFactory::Create(const Json& data)
 {
   int numSections = data["numSections"];
@@ -49,43 +109,32 @@ IGameEntityPtr PaddleFactory::Create(const Json& data)
   int sectionHeight = data["sectionHeight"];
   float movementSpeed = data["movementSpeed"];
 
-  std::shared_ptr<Paddle> paddle = std::make_shared<Paddle>(numSections,
-    sectionWidth, sectionHeight, movementSpeed);
+  std::shared_ptr<Paddle> paddle = std::make_shared<Paddle>(
+    numSections,
+    sectionWidth,
+    sectionHeight,
+    movementSpeed);
   IGAMEENTITYFACTORY_SET_COMMON_PARAMS(paddle, data);
   return paddle;
 }
 
-IGameEntityPtr ScoreBoardFactory::Create(const Json& data)
+IGameEntityPtr TimeTrackerFactory::Create(const Json& data)
 {
-  if (!data.contains("font") || !data["font"].is_string())
+  const std::string timeChangedEventName = "timeChangedEventName";
+
+  std::string timeChangedEventNameString = "";
+  if (data.contains(timeChangedEventName) &&
+    data[timeChangedEventName].is_string())
   {
-    PLOG_ERROR << "ScoreBoardFactory: Missing or invalid 'font' parameter";
-    throw std::runtime_error("ScoreBoardFactory: Missing or invalid 'font' "
-      "parameter");
-  }
-
-  std::string fontName = data["font"];
-
-  auto fontService = ServiceLocator::GetInstance()->GetService<IFontService>();
-  if (!fontService)
-  {
-    PLOG_ERROR << "ScoreBoardFactory: FontService not available";
-    throw std::runtime_error("ScoreBoardFactory: FontService not available to "
-      "retrieve fonts");
-  }
-
-  const sf::Font& font = fontService->GetFont(fontName);
-
-  std::string text = "";
-  if (data.contains("text") && data["text"].is_string())
-  {
-    text = data["text"];
+    timeChangedEventNameString = data[timeChangedEventName];
   }
 
   auto eventService = ServiceLocator::GetInstance()->
     GetService<IEventService>();
 
-  auto scoreBoard = std::make_shared<ScoreBoard>(font, text, eventService);
-  IGAMEENTITYFACTORY_SET_COMMON_PARAMS(scoreBoard, data);
-  return scoreBoard;
+  std::shared_ptr<TimeTracker> timeTracker = std::make_shared<TimeTracker>(
+    timeChangedEventNameString,
+    eventService);
+  IGAMEENTITYFACTORY_SET_COMMON_PARAMS(timeTracker, data);
+  return timeTracker;
 }

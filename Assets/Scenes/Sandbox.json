@@ -27,19 +27,45 @@
     }
   },
   {
-    "class": "ScoreBoard",
+    "class": "NumberDisplay",
     "data": {
       "position": {
         "x": 15.0,
         "y": 20.0
       },
-      "font": "BerlinSans"
+      "font": "BerlinSans",
+      "label": "Score: ",
+      "numberFormat": "{:.0f}",
+      "numberChangedEventName": "ScoreChanged"
+    }
+  },
+  {
+    "class": "NumberDisplay",
+    "data": {
+      "position": {
+        "x": 200.0,
+        "y": 20.0
+      },
+      "font": "BerlinSans",
+      "label": "Time: ",
+      "numberFormat": "{:.3f}",
+      "numberChangedEventName": "GameTimeChanged"
+    }
+  },
+  {
+    "class": "TimeTracker",
+    "data": {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "timeChangedEventName": "GameTimeChanged"
     }
   },
   {
     "class": "FPSDisplayEntity",
     "data": {
-      "isEnabled":  false,
+      "isEnabled": false,
       "position": {
         "x": 650.0,
         "y": 20.0

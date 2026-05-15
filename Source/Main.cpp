@@ -19,10 +19,12 @@ int main()
     std::make_shared<BallFactory>());
   sceneLoaderService->RegisterGameEntityFactory("Brick",
     std::make_shared<BrickFactory>());
+  sceneLoaderService->RegisterGameEntityFactory("NumberDisplay",
+    std::make_shared<NumberDisplayFactory>());
   sceneLoaderService->RegisterGameEntityFactory("Paddle",
     std::make_shared<PaddleFactory>());
-  sceneLoaderService->RegisterGameEntityFactory("ScoreBoard",
-    std::make_shared<ScoreBoardFactory>());
+  sceneLoaderService->RegisterGameEntityFactory("TimeTracker",
+    std::make_shared<TimeTrackerFactory>());
 
   auto particleEffectService = ServiceLocator::GetInstance()->
     GetService<IParticleEffectService>();

@@ -1,10 +1,11 @@
 target_sources(Bounce PRIVATE 
-  "Paddle.cpp"
   "Ball.cpp"
-  "BallCollisions.cpp" 
+  "BallCollisions.cpp"
   "Brick.cpp"
   "BurstParticleEffect.cpp"
-  "GameEntityFactories.cpp" 
-  "ParticleEffectFactories.cpp" 
-  "ScoreBoard.cpp"
+  "GameEntityFactories.cpp"
+  "NumberDisplay.cpp"
+  "Paddle.cpp"
+  "ParticleEffectFactories.cpp"
+  "TimeTracker.cpp"
 )

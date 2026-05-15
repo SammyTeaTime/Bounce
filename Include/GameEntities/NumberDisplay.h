@@ -7,19 +7,26 @@
 
 class IEventService;
 
-class ScoreBoard : public TextEntity, EventListener
+class NumberDisplay : public TextEntity, EventListener
 {
   IGAMEENTITY_DECLARATION();
 
 private:
-  int _score = 0;
-  int _displayedScore = 0;
+  double _number = 0.0;
+  double _displayedNumber = 0.0;
+  std::string _label;
+  std::string _numberFormat;
+  std::string _numberChangedEventName;
   std::shared_ptr<IEventService> _eventService;
 
 public:
-  ScoreBoard(const sf::Font& font, const std::string& text,
+  NumberDisplay(
+    const sf::Font& font,
+    const std::string& label,
+    const std::string& numberFormat,
+    const std::string& numberChangedEventName,
     std::shared_ptr<IEventService> eventService);
-  ~ScoreBoard() = default;
+  ~NumberDisplay() = default;
 
   void Setup() override;
   void Start() override;
@@ -39,5 +46,5 @@ public:
   void OnEventTriggered(const IEvent& event) override;
 
 private:
-  void UpdateDisplayedScore();
+  void UpdateDisplayedNumber();
 };

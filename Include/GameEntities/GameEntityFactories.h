@@ -20,7 +20,13 @@ public:
   IGameEntityPtr Create(const Json& data) override;
 };
 
-class ScoreBoardFactory : public IGameEntityFactory
+class NumberDisplayFactory : public IGameEntityFactory
+{
+public:
+  IGameEntityPtr Create(const Json& data) override;
+};
+
+class TimeTrackerFactory : public IGameEntityFactory
 {
 public:
   IGameEntityPtr Create(const Json& data) override;

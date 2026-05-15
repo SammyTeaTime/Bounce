@@ -2,12 +2,19 @@
 
 #include <TeaTimeEngine/Services/IEventService.h>
 
-#include "Events/BrickDestroyedEvent.h"
+#include "Events/NumberChangedEvent.h"
 
-Brick::Brick(float width, float height, sf::Color colour, int scoreValue,
+Brick::Brick(
+  float width, 
+  float height, 
+  sf::Color colour, 
+  int scoreValue,
   std::shared_ptr<IEventService> eventService) :
-  _width(width), _height(height), _colour(colour), _scoreValue(scoreValue), 
-  _eventService(eventService)
+    _width(width), 
+    _height(height), 
+    _colour(colour), 
+    _scoreValue(scoreValue), 
+    _eventService(eventService)
 {
   _shape.setSize(sf::Vector2f(_width, _height));
   _shape.setOrigin(sf::Vector2f(_width * 0.5f, _height * 0.5f));
@@ -33,6 +40,6 @@ void Brick::Render(sf::RenderWindow& window)
 
 void Brick::Destroy()
 {
-  auto event = BrickDestroyedEvent(_scoreValue);
+  auto event = NumberChangedEvent("ScoreChanged", _scoreValue);
   _eventService->ReceiveEvent(event);
 }
