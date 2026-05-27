@@ -3,15 +3,18 @@
 #include <plog/Log.h>
 #include <TeaTimeEngine/Services/IEventService.h>
 #include <TeaTimeEngine/Services/IFontService.h>
+#include <TeaTimeEngine/Services/IParticlesService.h>
 #include <TeaTimeEngine/Services/ServiceLocator.h>
 
 #include "GameEntities/Ball.h"
 #include "GameEntities/Brick.h"
+#include "GameEntities/BricksMonitor.h"
+#include "GameEntities/GameStateMachine.h"
 #include "GameEntities/NumberDisplay.h"
 #include "GameEntities/Paddle.h"
 #include "GameEntities/TimeTracker.h"
 
-IGameEntityPtr BallFactory::Create(const Json& data)
+IGameEntityPtr BallFactory::Create(const Json& data, ScenePtr scene)
 {
   float radius = data["radius"];
   sf::Vector2f initialVelocity = { data["initialVelocity"]["x"],
@@ -24,7 +27,7 @@ IGameEntityPtr BallFactory::Create(const Json& data)
   return ball;
 }
 
-IGameEntityPtr BrickFactory::Create(const Json& data)
+IGameEntityPtr BrickFactory::Create(const Json& data, ScenePtr scene)
 {
   float width = data["width"];
   float height = data["height"];
@@ -35,16 +38,44 @@ IGameEntityPtr BrickFactory::Create(const Json& data)
     data["colour"]["a"]);
   int scoreValue = data["scoreValue"];
 
-  auto eventService = ServiceLocator::GetInstance()->
-    GetService<IEventService>();
+  auto eventService = ServiceLocator::GetService<IEventService>();
+  auto particlesService = ServiceLocator::GetService<IParticlesService>();
 
-  std::shared_ptr<Brick> brick = std::make_shared<Brick>(width, height,
-    colour, scoreValue, eventService);
+  auto brick = std::make_shared<Brick>(
+    width,
+    height,
+    colour,
+    scoreValue,
+    scene,
+    eventService,
+    particlesService);
   IGAMEENTITYFACTORY_SET_COMMON_PARAMS(brick, data);
   return brick;
 }
 
-IGameEntityPtr NumberDisplayFactory::Create(const Json& data)
+IGameEntityPtr BricksMonitorFactory::Create(const Json& data, ScenePtr scene)
+{
+  auto eventService = ServiceLocator::GetService<IEventService>();
+
+  auto bricksMonitor = std::make_shared<BricksMonitor>(
+    eventService,
+    scene);
+  IGAMEENTITYFACTORY_SET_COMMON_PARAMS(bricksMonitor, data);
+  return bricksMonitor;
+}
+
+IGameEntityPtr GameStateMachineFactory::Create(const Json& data, ScenePtr scene)
+{
+  auto eventService = ServiceLocator::GetService<IEventService>();
+
+  auto gameStateMachine = std::make_shared<GameStateMachine>(
+    scene,
+    eventService);
+  IGAMEENTITYFACTORY_SET_COMMON_PARAMS(gameStateMachine, data);
+  return gameStateMachine;
+}
+
+IGameEntityPtr NumberDisplayFactory::Create(const Json& data, ScenePtr scene)
 {
   const std::string font = "font";
   const std::string label = "label";
@@ -60,7 +91,7 @@ IGameEntityPtr NumberDisplayFactory::Create(const Json& data)
 
   std::string fontName = data[font];
 
-  auto fontService = ServiceLocator::GetInstance()->GetService<IFontService>();
+  auto fontService = ServiceLocator::GetService<IFontService>();
   if (!fontService)
   {
     PLOG_ERROR << "NumberDisplayFactory: FontService not available";
@@ -89,8 +120,7 @@ IGameEntityPtr NumberDisplayFactory::Create(const Json& data)
     numberChangeEventNameString = data[numberChangedEventName];
   }
 
-  auto eventService = ServiceLocator::GetInstance()->
-    GetService<IEventService>();
+  auto eventService = ServiceLocator::GetService<IEventService>();
 
   auto numberDisplay = std::make_shared<NumberDisplay>(
     fontObject,
@@ -102,7 +132,7 @@ IGameEntityPtr NumberDisplayFactory::Create(const Json& data)
   return numberDisplay;
 }
 
-IGameEntityPtr PaddleFactory::Create(const Json& data)
+IGameEntityPtr PaddleFactory::Create(const Json& data, ScenePtr scene)
 {
   int numSections = data["numSections"];
   int sectionWidth = data["sectionWidth"];
@@ -118,7 +148,7 @@ IGameEntityPtr PaddleFactory::Create(const Json& data)
   return paddle;
 }
 
-IGameEntityPtr TimeTrackerFactory::Create(const Json& data)
+IGameEntityPtr TimeTrackerFactory::Create(const Json& data, ScenePtr scene)
 {
   const std::string timeChangedEventName = "timeChangedEventName";
 
@@ -129,8 +159,7 @@ IGameEntityPtr TimeTrackerFactory::Create(const Json& data)
     timeChangedEventNameString = data[timeChangedEventName];
   }
 
-  auto eventService = ServiceLocator::GetInstance()->
-    GetService<IEventService>();
+  auto eventService = ServiceLocator::GetService<IEventService>();
 
   std::shared_ptr<TimeTracker> timeTracker = std::make_shared<TimeTracker>(
     timeChangedEventNameString,

@@ -1,5 +1,6 @@
 ﻿#include <TeaTimeEngine/Application.h>
-#include <TeaTimeEngine/Services/IParticleEffectService.h>
+#include <TeaTimeEngine/Services/IParticlesService.h>
+#include <TeaTimeEngine/Services/IRandomService.h>
 #include <TeaTimeEngine/Services/ISceneLoaderService.h>
 #include <TeaTimeEngine/Services/ServiceLocator.h>
 
@@ -12,26 +13,31 @@ int main()
 
   application.Setup();
 
-  auto sceneLoaderService = ServiceLocator::GetInstance()->
-    GetService<ISceneLoaderService>();
+  auto sceneLoaderService = ServiceLocator::GetService<ISceneLoaderService>();
 
-  sceneLoaderService->RegisterGameEntityFactory("Ball", 
+  sceneLoaderService->RegisterFactory("Ball",
     std::make_shared<BallFactory>());
-  sceneLoaderService->RegisterGameEntityFactory("Brick",
+  sceneLoaderService->RegisterFactory("Brick",
     std::make_shared<BrickFactory>());
-  sceneLoaderService->RegisterGameEntityFactory("NumberDisplay",
+  sceneLoaderService->RegisterFactory("BricksMonitor",
+    std::make_shared<BricksMonitorFactory>());
+  sceneLoaderService->RegisterFactory("GameStateMachine",
+    std::make_shared<GameStateMachineFactory>());
+  sceneLoaderService->RegisterFactory("NumberDisplay",
     std::make_shared<NumberDisplayFactory>());
-  sceneLoaderService->RegisterGameEntityFactory("Paddle",
+  sceneLoaderService->RegisterFactory("Paddle",
     std::make_shared<PaddleFactory>());
-  sceneLoaderService->RegisterGameEntityFactory("TimeTracker",
+  sceneLoaderService->RegisterFactory("TimeTracker",
     std::make_shared<TimeTrackerFactory>());
 
-  auto particleEffectService = ServiceLocator::GetInstance()->
-    GetService<IParticleEffectService>();
+  auto particlesService = ServiceLocator::GetService<IParticlesService>();
 
-  particleEffectService->RegisterGameEntityFactory("BurstParticleEffect", 
+  particlesService->RegisterFactory("BurstParticleEffect",
     std::make_shared<BurstParticleEffectFactory>());
-  particleEffectService->LoadParticleEffects();
+  particlesService->LoadParticleEffects();
+
+  auto randomService = ServiceLocator::GetService<IRandomService>();
+  randomService->Initialise();
 
   application.LoadStartupScene();
 

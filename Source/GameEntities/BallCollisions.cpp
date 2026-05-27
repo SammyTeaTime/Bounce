@@ -1,17 +1,24 @@
 #include "GameEntities/BallCollisions.h"
 
 #include <TeaTimeEngine/Application.h>
-#include <TeaTimeEngine/Entities/IParticleEffect.h>
-#include <TeaTimeEngine/Scene.h>
-#include <TeaTimeEngine/Services/IParticleEffectService.h>
+#include <TeaTimeEngine/Events/GenericEvent.h>
+#include <TeaTimeEngine/Services/IEventService.h>
 
+#include "Events/EntityListUpdatedEvent.h"
+#include "Events/EventNames.h"
 #include "GameEntities/Ball.h"
 #include "GameEntities/Brick.h"
 #include "GameEntities/Paddle.h"
 
-BallCollisions::BallCollisions(Ball& ball, std::vector<sf::FloatRect> walls) :
-  _ball(ball), _walls(walls)
+void BallCollisions::Setup(
+  std::shared_ptr<Ball> ball,
+  std::shared_ptr<Paddle> paddle,
+  std::vector<sf::FloatRect> walls)
 {
+  _ball = ball;
+  _paddle = paddle;
+  _walls = walls;
+
   for (auto& wall : _walls)
   {
     sf::RectangleShape debugWall;
@@ -22,41 +29,21 @@ BallCollisions::BallCollisions(Ball& ball, std::vector<sf::FloatRect> walls) :
     debugWall.setOutlineThickness(1.0f);
     _debugWalls.push_back(debugWall);
   }
+
+  auto eventService = ServiceLocator::GetService<IEventService>();
+
+  eventService->RegisterListener(EventNames::BRICKS_UPDATED, this);
+
+  auto requestBricksUpdateEvent = 
+    GenericEvent(EventNames::REQUEST_BRICKS_UPDATE);
+  eventService->ReceiveEvent(requestBricksUpdateEvent);
 }
 
-void BallCollisions::Setup(std::vector<std::shared_ptr<Scene>> scenes)
+void BallCollisions::Destroy()
 {
-  for (auto& scene : scenes)
-  {
-    auto entity = scene->FindGameEntityOfType(typeid(Paddle));
-    if (entity != nullptr)
-    {
-      _paddle = std::dynamic_pointer_cast<Paddle>(entity);
-      break;
-    }
-  }
+  auto eventService = ServiceLocator::GetService<IEventService>();
 
-  if (_paddle.expired())
-  {
-    throw std::runtime_error("BallCollisions requires a Paddle entity in the scene");
-    return;
-  }
-
-  for (auto& scene : scenes)
-  {
-    std::vector<IGameEntityPtr> brickEntities =
-      scene->FindGameEntitiesOfType(typeid(Brick));
-
-    for (auto& brickEntity : brickEntities)
-    {
-      std::shared_ptr<Brick> brick =
-        std::dynamic_pointer_cast<Brick>(brickEntity);
-      if (brick != nullptr)
-      {
-        _bricks.push_back(std::weak_ptr<Brick>(brick));
-      }
-    }
-  }
+  eventService->UnregisterListener(EventNames::BRICKS_UPDATED, this);
 }
 
 void BallCollisions::CheckCollisions()
@@ -74,32 +61,36 @@ void BallCollisions::DebugDraw(sf::RenderWindow& window)
   }
 }
 
+void BallCollisions::OnEventTriggered(const IEvent& event)
+{
+  if (event.GetName() != EventNames::BRICKS_UPDATED)
+  {
+    return;
+  }
+
+  auto& entityListUpdatedEvent = 
+    static_cast<const EntityListUpdatedEvent&>(event);
+  _bricks = entityListUpdatedEvent.GetEntityList();
+}
+
 void BallCollisions::CollideWithBricks()
 {
-  sf::FloatRect ballBounds = _ball.GetBounds();
+  auto& ball = *(_ball.lock());
+
+  sf::FloatRect ballBounds = ball.GetBounds();
 
   std::vector<std::weak_ptr<Brick>> destroyedBricks;
 
-  for (auto& brick : _bricks)
+  for (auto& entity : *_bricks)
   {
-    sf::FloatRect brickBounds = brick.lock()->GetBounds();
+    auto brick = std::static_pointer_cast<Brick>(entity);
+    sf::FloatRect brickBounds = brick->GetBounds();
     if (!ballBounds.findIntersection(brickBounds))
     {
       continue;
     }
 
-    _ball.SetVelocity({ _ball.GetVelocity().x, -_ball.GetVelocity().y });
-
-    auto particleEffectService = ServiceLocator::GetInstance()->
-      GetService<IParticleEffectService>();
-    //TODO: Pool effects instead of instantiating new ones every time
-    auto effect = particleEffectService->InstantiateEffect(
-      "BrickExplodeParticles",
-      *Application::GetInstance()->GetScenes().front(),
-      brick.lock()->GetPosition(),
-      false);
-    effect->SetColour(brick.lock()->GetColour());
-    effect->Play();
+    ball.SetVelocity({ ball.GetVelocity().x, -ball.GetVelocity().y });
 
     destroyedBricks.push_back(brick);
   }
@@ -111,33 +102,31 @@ void BallCollisions::CollideWithBricks()
     {
       scene->RemoveGameEntity(destroyedBrick.lock());
     }
-
-    _bricks.erase(std::remove_if(_bricks.begin(), _bricks.end(),
-      [&destroyedBrick](const std::weak_ptr<Brick>& wp)
-      {
-        return !(wp.owner_before(destroyedBrick) ||
-          destroyedBrick.owner_before(wp));
-      }), _bricks.end());
   }
 }
 
 void BallCollisions::CollideWithPaddle()
 {
-  sf::FloatRect ballBounds = _ball.GetBounds();
-  sf::FloatRect paddleBounds = _paddle.lock()->GetBounds();
+  auto& ball = *(_ball.lock());
+  auto& paddle = *(_paddle.lock());
+
+  sf::FloatRect ballBounds = ball.GetBounds();
+  sf::FloatRect paddleBounds = paddle.GetBounds();
   if (ballBounds.findIntersection(paddleBounds))
   {
-    _ball.SetVelocity(
+    ball.SetVelocity(
       {
-        _ball.GetVelocity().x,
-        -_ball.GetVelocity().y
+        ball.GetVelocity().x,
+        -ball.GetVelocity().y
       });
   }
 }
 
 void BallCollisions::CollideWithWalls()
 {
-  sf::FloatRect ballBounds = _ball.GetBounds();
+  auto& ball = *(_ball.lock());
+
+  sf::FloatRect ballBounds = ball.GetBounds();
   for (const sf::FloatRect& wall : _walls)
   {
     if (ballBounds.findIntersection(wall))
@@ -146,18 +135,18 @@ void BallCollisions::CollideWithWalls()
         ballBounds.position.x + ballBounds.size.x >
         wall.position.x + wall.size.x)
       {
-        _ball.SetVelocity(
+        ball.SetVelocity(
           {
-            -_ball.GetVelocity().x,
-            _ball.GetVelocity().y
+            -ball.GetVelocity().x,
+            ball.GetVelocity().y
           });
       }
       else
       {
-        _ball.SetVelocity(
+        ball.SetVelocity(
           {
-            _ball.GetVelocity().x,
-            -_ball.GetVelocity().y
+            ball.GetVelocity().x,
+            -ball.GetVelocity().y
           });
       }
     }

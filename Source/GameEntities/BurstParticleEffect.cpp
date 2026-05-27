@@ -15,6 +15,8 @@ BurstParticleEffect::BurstParticleEffect(float lifetime,
     _particles[i].setFillColor(_particleColour);
     _particleActive[i] = false;
   }
+
+  _particleActive.fill(false);
 }
 
 void BurstParticleEffect::Play()

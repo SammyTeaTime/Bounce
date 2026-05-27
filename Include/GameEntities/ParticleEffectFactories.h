@@ -1,8 +1,8 @@
 #pragma once
 
-#include <TeaTimeEngine/Entities/IGameEntityFactory.h>
+#include <TeaTimeEngine/Entities/IParticleEffectFactory.h>
 
-class BurstParticleEffectFactory : public IGameEntityFactory
+class BurstParticleEffectFactory : public IParticleEffectFactory
 {
   IGameEntityPtr Create(const Json& data) override;
 };

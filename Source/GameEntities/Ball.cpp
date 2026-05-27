@@ -39,9 +39,24 @@ void Ball::Start()
       { wallThickness, windowSize.y }) // Right
   };
 
-  _collisions = std::make_unique<BallCollisions>(
-    *this, walls);
-  _collisions->Setup(Application::GetInstance()->GetScenes());
+  _collisions = std::make_unique<BallCollisions>();
+
+  auto& scenes = Application::GetInstance()->GetScenes();
+  std::shared_ptr<Paddle> paddle;
+  for (auto& scene : scenes)
+  {
+    auto found = scene->FindGameEntityOfType(typeid(Paddle));
+    if (found != nullptr)
+    {
+      paddle = std::static_pointer_cast<Paddle>(found);
+      break;
+    }
+  }
+
+  auto pointerToThis = std::static_pointer_cast<Ball>
+    (shared_from_this());
+
+  _collisions->Setup(pointerToThis, paddle, walls);
 }
 
 void Ball::Update(const float dt)
@@ -64,6 +79,7 @@ void Ball::Render(sf::RenderWindow& window)
 
 void Ball::Destroy()
 {
+  _collisions->Destroy();
 }
 
 void Ball::SetRadius(float radius)

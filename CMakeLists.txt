@@ -14,7 +14,7 @@ include(FetchContent)
 FetchContent_Declare(
   TeaTimeEngine
   GIT_REPOSITORY https://github.com/SammyTeaTime/TeaTimeEngine
-  GIT_TAG        9c54fddec9cd9bb0b2140f6907d16a04ae1625ca
+  GIT_TAG        7e0f430b4c375b4e05df20b7f83da240f44395c8
   GIT_SHALLOW    true
   # Used for testing locally
   # SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../TeaTimeEngine"
@@ -27,6 +27,7 @@ include_directories("Include")
 set(SOURCES "Source/Main.cpp")
 add_executable(Bounce ${SOURCES})
 add_subdirectory("Source/GameEntities")
+add_subdirectory("Source/GameStates")
 
 target_compile_features(Bounce PRIVATE cxx_std_20)
 target_link_libraries(Bounce PRIVATE TeaTimeEngine::TeaTimeEngine)

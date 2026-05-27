@@ -5,6 +5,9 @@
 #include <TeaTimeEngine/Entities/IGameEntity.h>
 
 class IEventService;
+class IParticlesService;
+class Scene;
+typedef std::shared_ptr<Scene> ScenePtr;
 
 class Brick : public IGameEntity
 {
@@ -17,11 +20,19 @@ private:
   int _scoreValue;
   sf::RectangleShape _shape;
 
+  ScenePtr _scene;
   std::shared_ptr<IEventService> _eventService;
+  std::shared_ptr<IParticlesService> _particlesService;
 
 public:
-  Brick(float width, float height, sf::Color colour, int scoreValue,
-    std::shared_ptr<IEventService>);
+  Brick(
+    float width,
+    float height,
+    sf::Color colour,
+    int scoreValue,
+    ScenePtr scene,
+    std::shared_ptr<IEventService> eventService,
+    std::shared_ptr<IParticlesService> particlesService);
   ~Brick() = default;
 
   void Setup() override;

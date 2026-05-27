@@ -1,27 +1,31 @@
 #pragma once
 
-#include <string>
+#include <memory>
 
 #include <TeaTimeEngine/Entities/IGameEntity.h>
 
-class IEventService;
+#include "GameStates/IGameState.h"
 
-class TimeTracker : public IGameEntity
+class IEventService;
+class Scene;
+typedef std::shared_ptr<Scene> ScenePtr;
+
+class GameStateMachine : public IGameEntity
 {
   IGAMEENTITY_DECLARATION();
 
 private:
-  std::string _timeChangedEventName;
+  std::unique_ptr<IGameState> _state = nullptr;
   std::shared_ptr<IEventService> _eventService;
-
-  double _elapsedSeconds = 0.0;
-  bool _isPaused = false;
+  ScenePtr _scene;
 
 public:
-  TimeTracker(
-    const std::string timeChangedEventName,
-    std::shared_ptr<IEventService> eventService);
-  ~TimeTracker() = default;
+  GameStateMachine(
+    ScenePtr scene, 
+    std::shared_ptr<IEventService> eventService) :
+      _scene(scene),
+      _eventService(eventService) {}
+  ~GameStateMachine() = default;
 
   void Setup() override;
   void Start() override;
@@ -32,7 +36,5 @@ public:
   sf::Vector2f GetPosition() const override { return { 0.0f, 0.0f }; }
   void SetPosition(const sf::Vector2f& position) override {}
 
-  void PauseTimer();
-  void ClearTimer();
-  void StartTimer();
+  ScenePtr GetScene() const { return _scene; }
 };

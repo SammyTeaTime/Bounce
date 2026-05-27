@@ -5,27 +5,40 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <TeaTimeEngine/Events/EventListener.h>
+
 class Ball;
 class Brick;
+class IGameEntity;
 class Paddle;
 class Scene;
 
-class BallCollisions
+typedef std::shared_ptr<IGameEntity> IGameEntityPtr;
+typedef std::vector<IGameEntityPtr> EntityList;
+typedef std::shared_ptr<EntityList> EntityListPtr;
+
+class BallCollisions : public EventListener
 {
 private:
-  Ball& _ball;
+  std::weak_ptr<Ball> _ball;
   std::weak_ptr<Paddle> _paddle;
-  std::vector<std::weak_ptr<Brick>> _bricks;
   std::vector<sf::FloatRect> _walls;
   std::vector<sf::RectangleShape> _debugWalls;
+  EntityListPtr _bricks;
 
 public:
-  BallCollisions(Ball& ball, std::vector<sf::FloatRect> walls);
+  BallCollisions() = default;
   ~BallCollisions() = default;
 
-  void Setup(std::vector<std::shared_ptr<Scene>> scenes);
+  void Setup(
+    std::shared_ptr<Ball> ball, 
+    std::shared_ptr<Paddle> paddle, 
+    std::vector<sf::FloatRect> walls);
+  void Destroy();
   void CheckCollisions();
   void DebugDraw(sf::RenderWindow& window);
+
+  void OnEventTriggered(const IEvent& event) override;
 
 private:
   void CollideWithBricks();
